@@ -59,6 +59,7 @@ class Tabulka {
                         prepsat(pismena.charAt(sloupec) + "", radek, bunka.trim());
                     }
                 }
+                ulozit();
                 System.out.println("Sešit se uložil!");
             }
         });
@@ -104,7 +105,6 @@ class Tabulka {
     public void prepsat(String sloupec, int radek, String hodnota) {
         bunky[radek][pismena.indexOf(sloupec)].hodnota = hodnota.replace("\n", "").replace("\t", "");
         sirkaSloupcu();
-        ulozit();
     }
 
     public void zarovnej(String sloupec, int radek, byte zarovnani) {
