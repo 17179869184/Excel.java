@@ -65,31 +65,41 @@ class Tabulka {
         });
     }
 
+    public String mezery(int n) {
+        if (n == 0) {
+            return "";
+        }
+        String s = " ";
+        for (int i = 1; i < n; i++) {
+            s += " ";
+        }
+        return s;
+    }
+
     public void print() {
         String strTabulka = "   |";
         for (byte sloupec = 0; sloupec < 16; sloupec++) { // názvy sloupců
             int sirka = (velikosti[sloupec] + 1) / 2;
-            strTabulka += " ".repeat(sirka) + pismena.charAt(sloupec) + " ".repeat(velikosti[sloupec] - sirka + 1) + "|";
+            strTabulka += mezery(sirka) + pismena.charAt(sloupec) + mezery(velikosti[sloupec] - sirka + 1) + "|";
         }
 
         strTabulka += "\n";
         for (byte radek = 0; radek < 16; radek++) { // tabulka
-            strTabulka += " ".repeat(2 - String.valueOf(radek).length()) + radek + " |";
+            strTabulka += mezery(2 - String.valueOf(radek).length()) + radek + " |";
             for (byte sloupec = 0; sloupec < 16; sloupec++) {
                 Bunka bunka = bunky[radek][sloupec];
                 int sirka = velikosti[sloupec] - bunka.hodnota.length() + 1;
                 if (bunka.zarovnani == -1) {
-                    strTabulka += " " + bunka.hodnota + " ".repeat(sirka) + "|";
+                    strTabulka += " " + bunka.hodnota + mezery(sirka) + "|";
                 } else if (bunka.zarovnani == 1) {
-                    strTabulka += " ".repeat(sirka) + bunka.hodnota + " |";
+                    strTabulka += mezery(sirka) + bunka.hodnota + " |";
                 } else {
                     int polosirka = sirka / 2;
-                    strTabulka += " ".repeat(polosirka) + bunka.hodnota + " ".repeat(sirka - polosirka) + " |";
+                    strTabulka += mezery(polosirka) + bunka.hodnota + mezery(sirka - polosirka) + " |";
                 };
             }
             strTabulka += "\n";
         }
-
         textAreaTabulka.setText(strTabulka);
     }
 
