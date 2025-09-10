@@ -7,6 +7,9 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
 class Tabulka {
     Bunka[][] bunky = new Bunka[16][16];
@@ -14,6 +17,8 @@ class Tabulka {
     JFrame okno = new JFrame("Excel.java");
     JTextArea textAreaTabulka = new JTextArea(10, 40);
     int[] velikosti = new int[16];
+    boolean ignorovatZmeny = false;
+    int kurzor = 0;
 
     Tabulka() {
         File soubor = new File("sesit.xcl");
@@ -43,23 +48,34 @@ class Tabulka {
         textAreaTabulka.setSelectionColor(Color.GREEN);
         //textAreaTabulka.setEnabled(false);
         print();
+        textAreaTabulka.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                if (!ignorovatZmeny) {
+                    kurzor = textAreaTabulka.getCaretPosition() + 1;
+                    SwingUtilities.invokeLater(() -> {update();});
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                if (!ignorovatZmeny) {
+                    kurzor = textAreaTabulka.getCaretPosition() - 1;
+                    SwingUtilities.invokeLater(() -> {update();});
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                if (!ignorovatZmeny) {
+                    kurzor = textAreaTabulka.getCaretPosition();
+                    SwingUtilities.invokeLater(() -> {update();});
+                }
+            }
+        });
         okno.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                String text = textAreaTabulka.getText();
                 okno.dispose();
-                text = text.split("\\|", 19)[18];
-                byte sloupec = -1;
-                byte radek = 0;
-                for (String bunka: text.split("\\|")) {
-                    if (sloupec == 16) {
-                        sloupec = -1;
-                        radek++;
-                    }
-                    sloupec++;
-                    if (!bunka.contains("\n")) {
-                        prepsat(sloupec, radek, bunka.trim());
-                    }
-                }
                 ulozit();
             }
         });
@@ -74,6 +90,26 @@ class Tabulka {
             s += " ";
         }
         return s;
+    }
+
+    public void update() {
+        String text = textAreaTabulka.getText();
+        text = text.split("\\|", 19)[18];
+        byte sloupec = -1;
+        byte radek = 0;
+        for (String bunka: text.split("\\|")) {
+            if (sloupec == 16) {
+                sloupec = -1;
+                radek++;
+            }
+            sloupec++;
+            if (!bunka.contains("\n")) {
+                prepsat(sloupec, radek, bunka.trim());
+            }
+        }
+        sirkaSloupcu();
+        print();
+        textAreaTabulka.setCaretPosition(kurzor);
     }
 
     public void print() {
@@ -100,7 +136,9 @@ class Tabulka {
             }
             strTabulka += "\n";
         }
+        ignorovatZmeny = true;
         textAreaTabulka.setText(strTabulka);
+        ignorovatZmeny = false;
     }
 
     public void sirkaSloupcu() {
