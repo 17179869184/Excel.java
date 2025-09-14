@@ -92,6 +92,14 @@ class Tabulka {
         return s;
     }
 
+    public int sum(int[] x) {
+        int s = 0;
+        for (int y: x) {
+            s += y;
+        }
+        return s;
+    }
+
     public void update() {
         String text = textAreaTabulka.getText();
         text = text.split("\\|", 19)[18];
@@ -142,12 +150,14 @@ class Tabulka {
     }
 
     public void sirkaSloupcu() {
+        int[] velikosti2 = velikosti.clone();
         velikosti = new int[16];
         for (byte radek = 0; radek < 16; radek++) { // výpočet šířky sloupců
             for (byte sloupec = 0; sloupec < 16; sloupec++) {
                 velikosti[sloupec] = Math.max(5, Math.max(velikosti[sloupec], bunky[radek][sloupec].hodnota.length()));
             }
         }
+        kurzor += (sum(velikosti) - sum(velikosti2)) * ((int) kurzor / (sum(velikosti) + 52));
     }
 
     public void prepsat(byte sloupec, byte radek, String hodnota) {
