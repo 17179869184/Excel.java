@@ -19,6 +19,7 @@ class Tabulka {
     int[] velikosti = new int[16];
     boolean ignorovatZmeny = false;
     int kurzor = 0;
+    String predchoziText;
 
     Tabulka() {
         File soubor = new File("sesit.xcl");
@@ -53,6 +54,14 @@ class Tabulka {
             public void insertUpdate(DocumentEvent e) {
                 if (!ignorovatZmeny) {
                     kurzor = textAreaTabulka.getCaretPosition() + 1;
+                    if (count(textAreaTabulka.getText(), "|") > 289) {
+                        SwingUtilities.invokeLater(() -> {
+                            ignorovatZmeny = true;
+                            textAreaTabulka.setText(predchoziText);
+                            ignorovatZmeny = false;
+                        });
+                        kurzor -= 1;
+                    }
                     SwingUtilities.invokeLater(() -> {update();});
                 }
             }
@@ -61,6 +70,14 @@ class Tabulka {
             public void removeUpdate(DocumentEvent e) {
                 if (!ignorovatZmeny) {
                     kurzor = textAreaTabulka.getCaretPosition() - 1;
+                    if (count(textAreaTabulka.getText(), "|") < 289 || count(textAreaTabulka.getText(), "\n") < 17) {
+                        SwingUtilities.invokeLater(() -> {
+                            ignorovatZmeny = true;
+                            textAreaTabulka.setText(predchoziText);
+                            ignorovatZmeny = false;
+                        });
+                        kurzor += 1;
+                    }
                     SwingUtilities.invokeLater(() -> {update();});
                 }
             }
@@ -98,6 +115,10 @@ class Tabulka {
             s += y;
         }
         return s;
+    }
+
+    public int count(String s, String t) {
+        return s.length() - s.replace(t, "").length();
     }
 
     public void update() {
@@ -146,6 +167,7 @@ class Tabulka {
         }
         ignorovatZmeny = true;
         textAreaTabulka.setText(strTabulka);
+        predchoziText = strTabulka;
         ignorovatZmeny = false;
     }
 
